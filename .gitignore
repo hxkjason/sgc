@@ -1,0 +1,7 @@
+.idea
+/log/*
+!/log/readme.md
+/run/*
+/test_self/*
+.air.toml
+/tmp/*
