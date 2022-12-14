@@ -2,11 +2,11 @@ package rabbitmq
 
 import (
 	"fmt"
+	feishu_service "github.com/hxkjason/sgc/services/feifu_service"
 	uuid "github.com/satori/go.uuid"
 	"github.com/streadway/amqp"
 	"os"
 	"os/signal"
-	feishu_service "sgc/services/feifu_service"
 	"sync"
 	"syscall"
 	"time"
@@ -278,7 +278,6 @@ func DeclareExchange(ch *amqp.Channel, exchangeName, kind string) error {
 
 	return err
 }
-
 
 func DealMQMessage(messageContent []byte, messageId string) {
 	fmt.Println("deal msg:", messageId, string(messageContent))

@@ -7,22 +7,22 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/hxkjason/sgc/constants"
+	"github.com/hxkjason/sgc/redis"
+	"github.com/hxkjason/sgc/utils"
 	uuid "github.com/satori/go.uuid"
 	"log"
 	"net/http"
 	"os"
 	"runtime"
-	"sgc/constants"
-	"sgc/redis"
-	"sgc/utils"
 	"strconv"
 	"strings"
 	"time"
 )
 
 const (
-	SuccessEmoji    = " ✔"
-	FailedEmoji     = " ❌"
+	SuccessEmoji = " ✔"
+	FailedEmoji  = " ❌"
 )
 
 var (

@@ -3,9 +3,9 @@ package ctx_group
 import (
 	"context"
 	"errors"
+	"github.com/hxkjason/sgc/utils"
 	"golang.org/x/sync/errgroup"
 	"math"
-	"sgc/utils"
 )
 
 func GetCtxCancelFuncGroup() (context.Context, context.CancelFunc, *errgroup.Group) {
