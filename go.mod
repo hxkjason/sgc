@@ -1,4 +1,4 @@
-module sgc
+module github.com/hxkjason/sgc
 
 go 1.17
 
