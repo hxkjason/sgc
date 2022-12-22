@@ -3,6 +3,8 @@ package utils
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"regexp"
 	"strings"
 	"unsafe"
@@ -43,3 +45,18 @@ func GetNumericStr(str string) string {
 	return strings.Join(NumericReg.FindAllString(str, -1), "")
 }
 
+// StructToJsonBytes struct to json bytes
+func StructToJsonBytes(structContent interface{}) ([]byte, error) {
+	jsonBytes, err := json.Marshal(structContent)
+	if err != nil {
+		return nil, err
+	}
+	return jsonBytes, nil
+}
+
+func DebugStruct(name string, structContent interface{}) {
+	fmt.Println("=====" + name + "==================== start")
+	jsonBytes, _ := StructToJsonBytes(structContent)
+	fmt.Println(BytesToStr(jsonBytes))
+	fmt.Println("=================================== end")
+}
