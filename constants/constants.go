@@ -9,6 +9,7 @@ const (
 	DateTimeUtcLayout = "2006-01-02T15:04:05.000Z"
 	DateTimeWithT     = "2006-01-02T15:04:05.999999"
 	DatetimeMicro     = "060102150405.999999"
+	DatetimeFormat1   = "20060102150405"
 	DateLayout        = "2006-01-02"
 	MonthLayout       = "2006-01"
 	DateSimpleLayout  = "060102"
