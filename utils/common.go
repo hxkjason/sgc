@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"bytes"
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"github.com/hxkjason/sgc/constants"
 	"time"
@@ -9,6 +11,17 @@ import (
 
 type JSONTime struct {
 	time.Time
+}
+
+func (t *JSONTime) UnmarshalJSON(data []byte) (err error) {
+	if len(data) == 2 {
+		*t = JSONTime{Time: time.Time{}}
+		return
+	}
+
+	now, err := time.Parse(`"`+constants.DateTimeLayout+`"`, string(data))
+	*t = JSONTime{Time: now}
+	return
 }
 
 // MarshalJSON on JSONTime format Time field with %Y-%m-%d %H:%M:%S
@@ -33,4 +46,14 @@ func (t *JSONTime) Scan(v interface{}) error {
 		return nil
 	}
 	return fmt.Errorf("can not convert %v to timestamp", v)
+}
+
+// JsonMarshalDisableEscapeHtml JsonMarshal禁用escapeHtml
+func JsonMarshalDisableEscapeHtml(data interface{}) ([]byte, error) {
+
+	bf := bytes.NewBuffer([]byte{})
+	jsonEncoder := json.NewEncoder(bf)
+	jsonEncoder.SetEscapeHTML(false)
+	err := jsonEncoder.Encode(data)
+	return bf.Bytes(), err
 }
