@@ -19,8 +19,8 @@ func (t *JSONTime) UnmarshalJSON(data []byte) (err error) {
 		return
 	}
 
-	now, err := time.Parse(constants.DateTimeLayout, string(data))
-	*t = JSONTime{Time: now.Local()}
+	now, err := time.ParseInLocation(`"`+constants.DateTimeLayout+`"`, string(data), time.Local)
+	*t = JSONTime{Time: now}
 	return
 }
 
