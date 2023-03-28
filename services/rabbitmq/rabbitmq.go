@@ -89,7 +89,7 @@ func InitMQPublishConn(connName, connUrl string, i int) {
 	conn.NotifyClose(closeConnChannel)
 }
 
-func handleSignal(done chan<- struct{}) {
+func HandleSignal(done chan<- struct{}) {
 	chanSigs := make(chan os.Signal, 1)
 	signal.Notify(chanSigs, syscall.SIGQUIT)
 
