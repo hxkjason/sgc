@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -30,17 +31,18 @@ func Request(rb RequestAttrs) ([]byte, error) {
 	if rb.Timeout == 0 {
 		rb.Timeout = 60 * time.Second
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), rb.Timeout)
-	defer cancel()
+
+	client := &http.Client{
+		Timeout: rb.Timeout,
+	}
 
 	var request *http.Request
 	var err error
-
 	requestTime := time.Now()
 
 	switch rb.HttpMethod {
 	case http.MethodGet:
-		request, err = http.NewRequestWithContext(ctx, rb.HttpMethod, rb.RequestUrl, nil)
+		request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, nil)
 		if err != nil {
 			return nil, errors.New("参数编码失败:" + err.Error())
 		}
@@ -49,16 +51,15 @@ func Request(rb RequestAttrs) ([]byte, error) {
 			q.Add(k, v)
 		}
 		request.URL.RawQuery = q.Encode()
-		fmt.Println(request.URL.String())
 
 	case http.MethodPost, http.MethodPut, http.MethodDelete:
 		paramBytes, err := json.Marshal(rb.Params)
 		if err != nil {
 			return nil, errors.New("参数编码失败:" + err.Error())
 		}
-		request, err = http.NewRequestWithContext(ctx, rb.HttpMethod, rb.RequestUrl, bytes.NewBuffer(paramBytes))
+		request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, bytes.NewBuffer(paramBytes))
 	default:
-		return nil, errors.New("当前方法暂不支持")
+		return nil, errors.New("当前请求方法[" + rb.HttpMethod + "]暂不支持")
 	}
 
 	if err != nil {
@@ -74,11 +75,11 @@ func Request(rb RequestAttrs) ([]byte, error) {
 		}
 	}
 
-	resp, err := http.DefaultClient.Do(request)
+	resp, err := client.Do(request)
 	fmt.Println("requestTime:", time.Now().Sub(requestTime).String())
 
 	if err != nil {
-		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		if strings.Contains(err.Error(), context.DeadlineExceeded.Error()) {
 			return nil, errors.New("请求超时:" + err.Error())
 		}
 		return nil, errors.New("请求出错:" + err.Error())
