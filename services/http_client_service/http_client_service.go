@@ -21,7 +21,7 @@ type (
 		Headers     map[string]string
 		Timeout     time.Duration
 		Result      interface{}
-		RequestBody string
+		RequestBody []byte
 		RetryTimes  int
 	}
 )
@@ -54,11 +54,7 @@ func Request(rb RequestAttrs) (interface{}, error) {
 		request.URL.RawQuery = q.Encode()
 
 	case http.MethodPost, http.MethodPut, http.MethodDelete:
-		paramBytes, err := json.Marshal(rb.Params)
-		if err != nil {
-			return nil, errors.New("参数编码失败:" + err.Error())
-		}
-		request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, bytes.NewBuffer(paramBytes))
+		request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, bytes.NewBuffer(rb.RequestBody))
 	default:
 		return nil, errors.New("当前请求方法[" + rb.HttpMethod + "]暂不支持")
 	}
