@@ -22,10 +22,11 @@ type (
 		Timeout     time.Duration
 		Result      interface{}
 		RequestBody string
+		RetryTimes  int
 	}
 )
 
-func Request(rb RequestAttrs) ([]byte, error) {
+func Request(rb RequestAttrs) (interface{}, error) {
 
 	// 设置超时时间
 	if rb.Timeout == 0 {
@@ -37,8 +38,8 @@ func Request(rb RequestAttrs) ([]byte, error) {
 	}
 
 	var request *http.Request
+	var resp *http.Response
 	var err error
-	requestTime := time.Now()
 
 	switch rb.HttpMethod {
 	case http.MethodGet:
@@ -75,8 +76,18 @@ func Request(rb RequestAttrs) ([]byte, error) {
 		}
 	}
 
-	resp, err := client.Do(request)
-	fmt.Println("requestTime:", time.Now().Sub(requestTime).String())
+	retryTimes := 1
+	for {
+		requestTime := time.Now()
+		resp, err = client.Do(request)
+		resp.Close = true
+		fmt.Println("HttpClientRequestCost:", retryTimes, time.Now().Sub(requestTime))
+		if err == nil || (err != nil && retryTimes >= rb.RetryTimes) {
+			break
+		}
+		resp.Close = true
+		retryTimes++
+	}
 
 	if err != nil {
 		if strings.Contains(err.Error(), context.DeadlineExceeded.Error()) {
