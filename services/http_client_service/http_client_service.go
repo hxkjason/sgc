@@ -76,7 +76,6 @@ func Request(rb RequestAttrs) (interface{}, error) {
 	for {
 		requestTime := time.Now()
 		resp, err = client.Do(request)
-		resp.Close = true
 		fmt.Println("HttpClientRequestCost:", retryTimes, time.Now().Sub(requestTime))
 		if err == nil || (err != nil && retryTimes >= rb.RetryTimes) {
 			break
