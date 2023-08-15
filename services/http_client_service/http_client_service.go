@@ -26,7 +26,7 @@ type (
 	}
 )
 
-func Request(rb RequestAttrs) (interface{}, error) {
+func Request(rb RequestAttrs) ([]byte, error) {
 
 	// 设置超时时间
 	if rb.Timeout == 0 {
