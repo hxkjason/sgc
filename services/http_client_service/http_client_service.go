@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -23,6 +24,8 @@ type (
 		Result      interface{}
 		RequestBody []byte
 		RetryTimes  int
+		NotUseHttp2 bool
+		Debug       bool
 	}
 )
 
@@ -40,6 +43,12 @@ func Request(rb RequestAttrs) ([]byte, error) {
 	var request *http.Request
 	var resp *http.Response
 	var err error
+
+	if rb.NotUseHttp2 {
+		if err = os.Setenv("GODEBUG", "http2client=0"); err != nil {
+			return nil, errors.New("set use http1 err:" + err.Error())
+		}
+	}
 
 	switch rb.HttpMethod {
 	case http.MethodGet:
@@ -76,7 +85,9 @@ func Request(rb RequestAttrs) ([]byte, error) {
 	for {
 		requestTime := time.Now()
 		resp, err = client.Do(request)
-		fmt.Println("HttpClientRequestCost:", retryTimes, time.Now().Sub(requestTime))
+		if rb.Debug {
+			fmt.Println("HttpClientRequestCost:", retryTimes, time.Now().Sub(requestTime))
+		}
 		if err == nil || (err != nil && retryTimes >= rb.RetryTimes) {
 			break
 		}
