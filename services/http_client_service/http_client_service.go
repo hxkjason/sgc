@@ -27,9 +27,14 @@ type (
 		NotUseHttp2 bool
 		Debug       bool
 	}
+
+	HttpResponse struct {
+		Response     *http.Response
+		ResBodyBytes []byte
+	}
 )
 
-func RequestV1(rb RequestAttrs) (*http.Response, error) {
+func RequestV1(rb RequestAttrs) (*HttpResponse, error) {
 
 	// 设置超时时间
 	if rb.Timeout == 0 {
@@ -42,11 +47,12 @@ func RequestV1(rb RequestAttrs) (*http.Response, error) {
 
 	var request *http.Request
 	var resp *http.Response
+	var res *HttpResponse
 	var err error
 
 	if rb.NotUseHttp2 {
 		if err = os.Setenv("GODEBUG", "http2client=0"); err != nil {
-			return resp, errors.New("set use http1 err:" + err.Error())
+			return res, errors.New("set use http1 err:" + err.Error())
 		}
 	}
 
@@ -56,10 +62,10 @@ func RequestV1(rb RequestAttrs) (*http.Response, error) {
 	case http.MethodPost, http.MethodPut, http.MethodDelete:
 		request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, bytes.NewBuffer(rb.RequestBody))
 	default:
-		return request.Response, errors.New("当前请求方法[" + rb.HttpMethod + "]暂不支持")
+		return res, errors.New("当前请求方法[" + rb.HttpMethod + "]暂不支持")
 	}
 	if err != nil {
-		return request.Response, errors.New("建立请求出错:" + err.Error())
+		return res, errors.New("建立请求出错:" + err.Error())
 	}
 
 	if len(rb.QueryParams) > 0 {
@@ -93,25 +99,29 @@ func RequestV1(rb RequestAttrs) (*http.Response, error) {
 		retryTimes++
 	}
 
+	res.Response = resp
+
 	if err != nil {
 		if strings.Contains(err.Error(), context.DeadlineExceeded.Error()) {
-			return resp, errors.New("请求超时:" + err.Error())
+			return res, errors.New("请求超时:" + err.Error())
 		}
-		return resp, errors.New("请求出错:" + err.Error())
+		return res, errors.New("请求出错:" + err.Error())
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
 		resBody, err := ioutil.ReadAll(resp.Body)
 		if err != nil {
-			return resp, errors.New("读取响应失败:" + err.Error())
+			return res, errors.New("读取响应失败:" + err.Error())
 		}
+		res.ResBodyBytes = resBody
+
 		if err = json.Unmarshal(resBody, &rb.Result); err != nil {
-			return resp, errors.New("解码响应出错:" + err.Error())
+			return res, errors.New("解码响应出错:" + err.Error())
 		}
 	}
 
-	return resp, nil
+	return res, nil
 }
 
 func Request(rb RequestAttrs) ([]byte, error) {
