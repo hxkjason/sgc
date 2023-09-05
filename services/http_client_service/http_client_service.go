@@ -101,13 +101,14 @@ func RequestV1(rb RequestAttrs) (*http.Response, error) {
 	}
 	defer resp.Body.Close()
 
-	resBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return resp, errors.New("读取响应失败:" + err.Error())
-	}
-
-	if err = json.Unmarshal(resBody, &rb.Result); err != nil {
-		return resp, errors.New("解码响应出错:" + err.Error())
+	if resp.StatusCode == http.StatusOK {
+		resBody, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return resp, errors.New("读取响应失败:" + err.Error())
+		}
+		if err = json.Unmarshal(resBody, &rb.Result); err != nil {
+			return resp, errors.New("解码响应出错:" + err.Error())
+		}
 	}
 
 	return resp, nil
