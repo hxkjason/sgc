@@ -64,6 +64,13 @@ func Request(rb RequestAttrs) ([]byte, error) {
 
 	case http.MethodPost, http.MethodPut, http.MethodDelete:
 		request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, bytes.NewBuffer(rb.RequestBody))
+		if len(rb.QueryParams) > 0 {
+			q := request.URL.Query()
+			for k, v := range rb.QueryParams {
+				q.Add(k, v)
+			}
+			request.URL.RawQuery = q.Encode()
+		}
 	default:
 		return nil, errors.New("当前请求方法[" + rb.HttpMethod + "]暂不支持")
 	}
