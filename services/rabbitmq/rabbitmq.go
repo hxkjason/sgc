@@ -1,6 +1,8 @@
 package rabbitmq
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	feishu_service "github.com/hxkjason/sgc/services/feifu_service"
 	uuid "github.com/satori/go.uuid"
@@ -250,6 +252,22 @@ func (MqConn MqConn) Publish(exchangeName string, routingKey string, data []byte
 			Timestamp:    time.Now(),
 		},
 	)
+}
+
+// PublishMsgToMqQueue 发送消息到队列
+func PublishMsgToMqQueue(connName, queueName string, queueMsgParams interface{}) error {
+
+	queueMsgBytes, err := json.Marshal(&queueMsgParams)
+	if err != nil {
+		return errors.New("解析队列消息失败:" + err.Error())
+	}
+
+	if err = GMQConn[connName].Publish("", queueName, queueMsgBytes); err != nil {
+		feishu_service.SendDevopsMsg("消息["+string(queueMsgBytes)+"],放入队列失败:"+err.Error(), "", "")
+		return err
+	}
+
+	return nil
 }
 
 func DeclareQueue(ch *amqp.Channel, queueName string, durable bool) (amqp.Queue, error) {
