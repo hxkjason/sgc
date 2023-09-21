@@ -254,15 +254,15 @@ func (MqConn MqConn) Publish(exchangeName string, routingKey string, data []byte
 	)
 }
 
-// PublishMsgToMqQueue 发送消息到队列
-func PublishMsgToMqQueue(connName, queueName string, queueMsgParams interface{}) error {
+// PublishMsg 发送消息到队列
+func PublishMsg(connName, exchangeName, queueName string, queueMsgParams interface{}) error {
 
 	queueMsgBytes, err := json.Marshal(&queueMsgParams)
 	if err != nil {
 		return errors.New("解析队列消息失败:" + err.Error())
 	}
 
-	if err = GMQConn[connName].Publish("", queueName, queueMsgBytes); err != nil {
+	if err = GMQConn[connName].Publish(exchangeName, queueName, queueMsgBytes); err != nil {
 		feishu_service.SendDevopsMsg("消息["+string(queueMsgBytes)+"],放入队列失败:"+err.Error(), "", "")
 		return err
 	}
