@@ -85,6 +85,7 @@ func RequestV1(rb RequestAttrs) (*HttpResponse, error) {
 		}
 	}
 
+	request.Close = true
 	retryTimes := 1
 	for {
 		requestTime := time.Now()
