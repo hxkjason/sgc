@@ -3,6 +3,7 @@ package exportExcel
 import (
 	"fmt"
 	"github.com/xuri/excelize/v2"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -181,6 +182,31 @@ func ReadOneSheetAllRowsData(dst string, index int, removeAfterRead bool) (int, 
 				fmt.Println("删除文件失败,dst:", dst)
 			}
 		}
+	}()
+
+	// Get all the rows in the index Sheet.
+	rows, err := f.GetRows(f.GetSheetName(index))
+	if err != nil {
+		return 1, err.Error(), nil
+	}
+
+	return 0, "ok", rows
+}
+
+func ReadOneSheetAllRowsDataOpenReader(file io.Reader, index int) (int, string, [][]string) {
+
+	f, err := excelize.OpenReader(file)
+	if err != nil {
+		fmt.Println(err)
+		return 1, err.Error(), nil
+	}
+
+	defer func() {
+		// 关闭文件
+		if err = f.Close(); err != nil {
+			fmt.Println(err)
+		}
+
 	}()
 
 	// Get all the rows in the index Sheet.
