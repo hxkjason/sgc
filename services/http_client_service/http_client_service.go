@@ -96,7 +96,7 @@ func RequestV1(rb RequestAttrs) (*HttpResponse, error) {
 		if err == nil || (err != nil && retryTimes >= rb.RetryTimes) {
 			break
 		}
-		resp.Close = true
+		//resp.Close = true
 		retryTimes++
 	}
 
