@@ -142,6 +142,77 @@ func (qc QueueConfig) DeclareQueue(channel *amqp.Channel) {
 	}
 }
 
+func ReceiveMessage(connName string, queues []*QueueConfig, done <-chan struct{}, channelBufferLength, receiverNum int) <-chan Message {
+
+	if channelBufferLength == 0 || channelBufferLength > ChannelBufferLength {
+		channelBufferLength = ChannelBufferLength
+	}
+	if receiverNum == 0 || receiverNum > ReceiverNum*10 {
+		receiverNum = ReceiverNum
+	}
+
+	out := make(chan Message, channelBufferLength)
+	var wg sync.WaitGroup
+
+	receiver := func(qc QueueConfig) {
+		defer wg.Done()
+
+	RECONNECT:
+		for {
+			channel := GMQConn[connName].Channel
+			if channel == nil {
+				fmt.Println(connName, "channel is nil, RECONNECT")
+				time.Sleep(5 * time.Second)
+				continue RECONNECT
+			}
+
+			msgs, err := channel.Consume(
+				qc.WorkerQueueName(), // queue
+				"",                   // consumer
+				false,                // auto-ack
+				false,                // exclusive
+				false,                // no-local
+				false,                // no-wait
+				nil,                  // args
+			)
+			PanicOnError(err)
+
+			for {
+				select {
+				case msg, ok := <-msgs:
+					if !ok {
+						fmt.Println(connName, "receiver: channel is closed, maybe lost connection")
+						time.Sleep(5 * time.Second)
+						continue RECONNECT
+					}
+					msg.MessageId = uuid.NewV4().String()
+					message := Message{connName, qc, &msg, NotifyFailure}
+					out <- message
+					//message.Printf("receiver: received msg=====")
+				case <-done:
+					fmt.Println("receiver: received a done signal")
+					return
+				}
+			}
+		}
+	}
+
+	for _, queue := range queues {
+		wg.Add(receiverNum)
+		for i := 0; i < receiverNum; i++ {
+			go receiver(*queue)
+		}
+	}
+
+	go func() {
+		wg.Wait()
+		fmt.Println("all receiver is done, closing channel")
+		close(out)
+	}()
+
+	return out
+}
+
 func ReceiveGhostMessage(connName string, queues []*QueueConfig, done <-chan struct{}) <-chan Message {
 	// connName = ConnSyncTripWhTask
 	out := make(chan Message, ChannelBufferLength)

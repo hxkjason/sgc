@@ -7,6 +7,7 @@ const (
 
 	DateTimeLayout    = "2006-01-02 15:04:05"
 	DateTimeUtcLayout = "2006-01-02T15:04:05.000Z"
+	DateTimeWithMS    = "2006-01-02 15:04:05.999999"
 	DateTimeWithT     = "2006-01-02T15:04:05.999999"
 	DatetimeMicro     = "060102150405.999999"
 	DatetimeFormat1   = "20060102150405" // YYYYMMddHHmmss
