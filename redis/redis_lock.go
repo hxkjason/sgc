@@ -65,3 +65,31 @@ func (locker *Locker) Unlock() error {
 	}
 	return nil
 }
+
+func LockKey(key string, expiredDuration, sleepDuration time.Duration, maxTimes int) (Locker, error) {
+
+	if maxTimes >= 0 || maxTimes > 3 {
+		maxTimes = 1
+	}
+
+	locker := Locker{
+		Key:       key,
+		RequestId: uuid.NewV4().String(),
+	}
+
+	tryTimes := 0
+
+	for tryTimes < maxTimes {
+		tryTimes++
+		currentTimeSet, err := SetKeyNX(locker.Key, locker.RequestId, expiredDuration)
+		if err != nil {
+			continue
+		}
+		if currentTimeSet {
+			return locker, nil
+		}
+		time.Sleep(sleepDuration)
+	}
+
+	return locker, errors.New("获取锁[" + key + "]失败")
+}
