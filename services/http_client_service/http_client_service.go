@@ -23,6 +23,7 @@ type (
 		Timeout     time.Duration
 		Result      interface{}
 		RequestBody []byte
+		MessageId   string
 		RetryTimes  int
 		NotUseHttp2 bool
 		Debug       bool
