@@ -68,7 +68,7 @@ func (locker *Locker) Unlock() error {
 
 func LockKey(key string, expiredDuration, sleepDuration time.Duration, maxTimes int) (Locker, error) {
 
-	if maxTimes >= 0 || maxTimes > 3 {
+	if maxTimes == 0 || maxTimes > 10 {
 		maxTimes = 1
 	}
 
