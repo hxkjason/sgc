@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -57,39 +57,43 @@ func RequestV1(rb RequestAttrs) (*HttpResponse, error) {
 		}
 	}
 
-	switch rb.HttpMethod {
-	case http.MethodGet:
-		request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, nil)
-	case http.MethodPost, http.MethodPut, http.MethodDelete:
-		request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, bytes.NewBuffer(rb.RequestBody))
-	default:
-		return &res, errors.New("当前请求方法[" + rb.HttpMethod + "]暂不支持")
-	}
-	if err != nil {
-		return &res, errors.New("建立请求出错:" + err.Error())
-	}
-
-	if len(rb.QueryParams) > 0 {
-		q := request.URL.Query()
-		for k, v := range rb.QueryParams {
-			q.Add(k, v)
-		}
-		request.URL.RawQuery = q.Encode()
-	}
-
-	// 设置请求头
-	if len(rb.Headers) == 0 {
-		request.Header.Set("Content-Type", "application/json")
-	} else {
-		for k, v := range rb.Headers {
-			request.Header.Set(k, v)
-		}
-	}
-
-	request.Close = true
 	retryTimes := 1
+
 	for {
+
 		requestTime := time.Now()
+
+		switch rb.HttpMethod {
+		case http.MethodGet:
+			request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, nil)
+		case http.MethodPost, http.MethodPut, http.MethodDelete:
+			request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, bytes.NewBuffer(rb.RequestBody))
+		default:
+			return &res, errors.New("当前请求方法[" + rb.HttpMethod + "]暂不支持")
+		}
+		if err != nil {
+			return &res, errors.New("建立请求出错:" + err.Error())
+		}
+
+		if len(rb.QueryParams) > 0 {
+			q := request.URL.Query()
+			for k, v := range rb.QueryParams {
+				q.Add(k, v)
+			}
+			request.URL.RawQuery = q.Encode()
+		}
+
+		// 设置请求头
+		if len(rb.Headers) == 0 {
+			request.Header.Set("Content-Type", "application/json")
+		} else {
+			for k, v := range rb.Headers {
+				request.Header.Set(k, v)
+			}
+		}
+
+		request.Close = true
+
 		resp, err = client.Do(request)
 		if rb.Debug {
 			fmt.Println("HttpClientRequestCost:", retryTimes, time.Now().Sub(requestTime))
@@ -112,7 +116,7 @@ func RequestV1(rb RequestAttrs) (*HttpResponse, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusOK {
-		resBody, err := ioutil.ReadAll(resp.Body)
+		resBody, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return &res, errors.New("读取响应失败:" + err.Error())
 		}
@@ -207,7 +211,7 @@ func Request(rb RequestAttrs) ([]byte, error) {
 	}
 	defer resp.Body.Close()
 
-	resBody, err := ioutil.ReadAll(resp.Body)
+	resBody, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return resBody, errors.New("读取响应失败:" + err.Error())
 	}
