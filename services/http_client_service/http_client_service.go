@@ -27,6 +27,7 @@ type (
 		RetryTimes  int
 		NotUseHttp2 bool
 		Debug       bool
+		SaveLog     int8
 	}
 
 	HttpResponse struct {
