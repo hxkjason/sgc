@@ -25,12 +25,11 @@ func Init(addr, password string, enableLTS bool) {
 	Rdb = redis.NewClient(&options)
 
 	// 测试连接
-	if _, err := Rdb.Set(ctx, "testTmp-"+time.Now().Format("2006-01-02T15:04:05.000Z"), 1, 2*time.Second).Result(); err != nil {
+	pong, err := Rdb.Ping(ctx).Result()
+	if err != nil {
 		panic("redis conn err:" + err.Error())
-	} else {
-		fmt.Println("redis conn success!")
 	}
-
+	fmt.Println("redis conn success! response:", pong)
 }
 
 func CloseRedis() {
