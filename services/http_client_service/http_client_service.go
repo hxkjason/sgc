@@ -124,7 +124,7 @@ func RequestV1(rb RequestAttrs) (*HttpResponse, error) {
 		res.ResBodyBytes = resBody
 
 		if err = json.Unmarshal(resBody, &rb.Result); err != nil {
-			return &res, errors.New("解码响应出错:" + err.Error())
+			return &res, errors.New("解码响应出错:" + err.Error() + ",originResBody:" + string(resBody))
 		}
 	}
 
