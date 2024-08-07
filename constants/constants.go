@@ -15,8 +15,10 @@ const (
 	DateLayout        = "2006-01-02"
 	MonthLayout       = "2006-01"
 	DateSimpleLayout  = "060102"
+	DateMonthLayout   = "0102" // 月日
 
 	RunEnv      = "RUN_ENV"      // 运行环境
 	RunPlatform = "RUN_PLATFORM" // 运行平台
+	RunApp      = "RUN_APP"      // 运行应用 sh bj
 
 )
