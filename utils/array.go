@@ -81,20 +81,39 @@ func SameArrAttrs(arr1, arr2 []string) []string {
 
 func DiffArrAttrs(arr1, arr2 []string) []string {
 
-	var diffArr []string
-	for _, item1 := range arr1 {
-		var inArray2 bool
-		for _, item2 := range arr2 {
-			if item1 == item2 {
-				inArray2 = true
-				break
-			}
-		}
-		if !inArray2 {
-			diffArr = append(diffArr, item1)
+	// 数组2 => map
+	var arr2Map = make(map[string]struct{}, len(arr2))
+	for _, u := range arr2 {
+		arr2Map[u] = struct{}{}
+	}
+
+	var arr1OnlyHasItems = make([]string, 0, len(arr1))
+	for _, item := range arr1 {
+		if _, ok := arr2Map[item]; !ok {
+			arr1OnlyHasItems = append(arr1OnlyHasItems, item)
 		}
 	}
-	return diffArr
+	return arr1OnlyHasItems
+}
+
+// 获取第一个数组在第二个数组中没有的元素  第一个数组比第二个数组多哪些元素
+
+func FirstArrOnlyHas(arr1, arr2 []uint) []uint {
+
+	// 数组1 这里不做去重处理
+	// 数组2 => map
+	var arr2Map = make(map[uint]struct{}, len(arr2))
+	for _, u := range arr2 {
+		arr2Map[u] = struct{}{}
+	}
+
+	var arr1OnlyHasItems = make([]uint, 0, len(arr1))
+	for _, item := range arr1 {
+		if _, ok := arr2Map[item]; !ok {
+			arr1OnlyHasItems = append(arr1OnlyHasItems, item)
+		}
+	}
+	return arr1OnlyHasItems
 }
 
 // RemoveDuplicationString 去除重复元素 string
@@ -236,7 +255,6 @@ func CheckHasRepeatItem(object interface{}) (hasRepeat bool, repeatI string) {
 	}
 	return repeat, repeatItem
 }
-
 
 // UintSliceToString []uint{1,2,3} => 1,2,3
 func UintSliceToString(uintSlice []uint) string {
