@@ -11,6 +11,7 @@ import (
 	"github.com/hxkjason/sgc/redis"
 	"github.com/hxkjason/sgc/utils"
 	uuid "github.com/satori/go.uuid"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -18,15 +19,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-)
-
-const (
-	SuccessEmoji = " ✔"
-	FailedEmoji  = " ❌"
-)
-
-var (
-	varOncePeriodDuration int64 = 300000000000 // 纳秒
 )
 
 type (
@@ -100,7 +92,7 @@ func RecentlyHasSend(md5CacheKey string, duration int64) bool {
 // SendMsg 发送消息
 func SendMsg(logContent LogContent, webhookUrl, secret string) error {
 	if webhookUrl == "" {
-		webhookUrl, secret = "https://open.feishu.cn/open-apis/bot/v2/hook/929608a0-f812-4d24-9579-8e7c6da4535e", "GRCIIXUKMFBnxQ1KCjIRYf"
+		webhookUrl, secret = WebhookUrlDefault, WebhookSecretDefault
 	}
 	timestampStr := strconv.FormatInt(time.Now().Unix(), 10)
 	sign, err := GenSign(secret, timestampStr)
@@ -177,4 +169,53 @@ func GenSign(secret, timestampStr string) (string, error) {
 
 	signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
 	return signature, nil
+}
+
+// SendCardMsg 发送卡片消息
+func SendCardMsg(cardContentJson interface{}, webhookUrl, secret string) error {
+
+	if webhookUrl == "" {
+		webhookUrl, secret = WebhookUrlDefault, WebhookSecretDefault
+	}
+	timestampStr := strconv.FormatInt(time.Now().Unix(), 10)
+	sign, err := GenSign(secret, timestampStr)
+	if err != nil {
+		return fmt.Errorf("feiShu GenSign has err:" + err.Error())
+	}
+
+	params := map[string]interface{}{
+		"timestamp": timestampStr,
+		"sign":      sign,
+		"msg_type":  "interactive",
+		"card":      cardContentJson,
+	}
+	jsonBytes, err := json.Marshal(&params)
+	if err != nil {
+		return err
+	}
+	// data
+	sendData := string(jsonBytes)
+	fmt.Println()
+	// request
+	result, err := http.Post(webhookUrl, "application/json", strings.NewReader(sendData))
+	defer result.Body.Close()
+
+	if result.StatusCode != 200 {
+		return fmt.Errorf("发送飞书卡片消息失败:%s", result.Status)
+	}
+	resBody, err := io.ReadAll(result.Body)
+	fmt.Println("sendFsCardMsgRes:", string(resBody))
+	if err != nil {
+		return fmt.Errorf("解析飞书响应失败:%s", err.Error())
+	}
+
+	var fsRes SendFeiShuMsgRes
+	if err = json.Unmarshal(resBody, &fsRes); err != nil {
+		return fmt.Errorf("解码飞书响应出错:%s", err.Error())
+	}
+	if fsRes.Code == 0 && fsRes.Msg == "success" {
+		return nil
+	}
+
+	return fmt.Errorf(fsRes.StatusMessage + ";msg:" + fsRes.Msg)
 }
