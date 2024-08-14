@@ -33,11 +33,11 @@ type (
 		UpdateMulti bool `json:"update_multi"`
 	}
 	Header struct {
-		Template string      `json:"template,omitempty"`
-		Title    HeaderTitle `json:"title"`
+		Template string     `json:"template,omitempty"`
+		Title    ContentTag `json:"title"`
 	}
 
-	HeaderTitle struct {
+	ContentTag struct {
 		Content interface{} `json:"content"`
 		Tag     string      `json:"tag"`
 	}
@@ -45,6 +45,7 @@ type (
 	Element struct {
 		Tag               string      `json:"tag"`
 		Content           interface{} `json:"content,omitempty"`
+		Text              ContentTag  `json:"text,omitempty"`
 		TextAlign         string      `json:"text_align,omitempty"`
 		TextSize          string      `json:"text_size,omitempty"`
 		FlexMode          string      `json:"flex_mode,omitempty"`
