@@ -33,7 +33,7 @@ type (
 		UpdateMulti bool `json:"update_multi"`
 	}
 	Header struct {
-		Template string     `json:"template,omitempty"`
+		Template string     `json:"template,omitempty"` // 标题主题颜色
 		Title    ContentTag `json:"title"`
 	}
 
