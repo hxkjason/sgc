@@ -18,10 +18,16 @@ func AppendFilesToZipWriter(filename string, zipWriter *zip.Writer) error {
 
 	info, _ := file.Stat()                  // 获取文件信息
 	header, err := zip.FileInfoHeader(info) // 创建ZIP文件中的文件头
-	header.Name = filename                  // 设置ZIP文件中的文件名
-	header.Method = zip.Deflate
+	if err != nil {
+		return err
+	}
+	header.Name = filename      // 设置ZIP文件中的文件名
+	header.Method = zip.Deflate // 使用 Deflate 方法压缩
 
 	wr, err := zipWriter.CreateHeader(header) // 将文件头写入ZIP文件
+	if err != nil {
+		return err
+	}
 
 	//wr, err := zipWriter.Create(filename)
 	//if err != nil {
