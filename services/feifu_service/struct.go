@@ -6,6 +6,10 @@ const (
 
 	WebhookUrlDefault    = "https://open.feishu.cn/open-apis/bot/v2/hook/929608a0-f812-4d24-9579-8e7c6da4535e"
 	WebhookSecretDefault = "GRCIIXUKMFBnxQ1KCjIRYf"
+
+	MsgTypeWarning = 0
+	MsgTypeSuccess = 1
+	MsgTypeDanger  = 2
 )
 
 var (
@@ -27,14 +31,21 @@ type (
 		Content string
 	}
 
+	// CardMsgAttr 卡片消息属性
 	CardMsgAttr struct {
-		Server      string // 服务器
-		RequestTime string // 当前时间
-		Cost        string // 耗时
-		Trace       string // 跟踪
-		Desc        string // 描述
-		MessageId   string // 消息标识
-		Items       []CardMsgItem
+		MsgType       int           // 消息类型 0:warning 1:success 2:fail
+		Title         string        // 标题
+		SubTitle      string        // 副标题
+		AppName       string        // 应用名称
+		Server        string        // 服务器
+		RequestTime   string        // 当前时间
+		Cost          string        // 耗时
+		Trace         string        // 跟踪
+		Desc          string        // 描述
+		MessageId     string        // 消息标识
+		Items         []CardMsgItem // 扩展字段
+		WebhookUrl    string
+		WebhookSecret string
 	}
 
 	// CardMsg 卡片消息
@@ -49,7 +60,7 @@ type (
 		UpdateMulti   bool `json:"update_multi"`   // 是否为共享卡片。为 true 时即更新卡片的内容对所有收到这张卡片的人员可见。默认值 false。
 	}
 	Header struct {
-		Template string     `json:"template,omitempty"` // 标题主题颜色
+		Template string     `json:"template,omitempty"` // 标题主题颜色 支持 "blue"|"wathet"|"turquoise"|"green"|"yellow"|"orange"|"red"|"carmine"|"violet"|"purple"|"indigo"|"grey"|"default"。默认值 default。
 		Title    ContentTag `json:"title"`              // 标题
 		SubTitle ContentTag `json:"subtitle,omitempty"` // 副标题
 		UdIcon   UdIcon     `json:"ud_icon"`            // 图标

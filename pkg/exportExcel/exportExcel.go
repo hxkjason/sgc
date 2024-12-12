@@ -26,6 +26,15 @@ type (
 		Key   string  `json:"key"`   // 对应的内容属性key
 		Width float64 `json:"width"` // 列宽度
 	}
+
+	CommonAttr struct {
+		FirstRowOpts          excelize.RowOpts
+		ContentRowOpts        excelize.RowOpts
+		FirstRowStyleId       int
+		HorizontalLeftStyleId int
+		QtyRightStyleId       int
+		AmtRightStyleId       int
+	}
 )
 
 var (
@@ -38,6 +47,8 @@ var (
 	CustomNumFmt2     = "#,##0.00;-#,##0.00"                   // 千分位 数字
 	CustomNumFmt3     = "#,##0;-#,##0;_(* \"-\"_);_(@_)"       // 千分位 数字 整数，为0时展示 -
 	CustomNumFmt4     = "#,##0.00;-#,##0.00;_(* \"-\"_);_(@_)" // 千分位 数字 2位小数，为0时展示 -
+	FirstRowOpts      = excelize.RowOpts{Height: 20.1}
+	ContentRowOpts    = excelize.RowOpts{Height: 18}
 )
 
 func NewStreamWriterExcel(filenamePrefix, alignHorizontal, sheetName string) *ExportFileInfo {
