@@ -195,7 +195,6 @@ func SendCardMsg(cardContentJson interface{}, webhookUrl, secret string) error {
 	}
 	// data
 	sendData := string(jsonBytes)
-	fmt.Println()
 	// request
 	result, err := http.Post(webhookUrl, "application/json", strings.NewReader(sendData))
 	defer result.Body.Close()
@@ -204,7 +203,7 @@ func SendCardMsg(cardContentJson interface{}, webhookUrl, secret string) error {
 		return fmt.Errorf("发送飞书卡片消息失败:%s", result.Status)
 	}
 	resBody, err := io.ReadAll(result.Body)
-	fmt.Println("sendFsCardMsgRes:", string(resBody))
+	//fmt.Println("sendFsCardMsgRes:", string(resBody))
 	if err != nil {
 		return fmt.Errorf("解析飞书响应失败:%s", err.Error())
 	}
