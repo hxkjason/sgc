@@ -1,5 +1,7 @@
 package feishu_service
 
+import "fmt"
+
 func SendCardMessage(rb CardMsgAttr) error {
 	return SendCardMsg(GenCardMsgJson(rb), rb.WebhookUrl, rb.WebhookSecret)
 }
@@ -63,6 +65,14 @@ func GenCardMsgJson(rb CardMsgAttr) (cardMsg CardMsg) {
 	if rb.MessageId != "" {
 		cardMsg.AppendColumnSetElement("标 识", rb.MessageId)
 	}
+	if len(rb.AtMembers) > 0 {
+		content := ""
+		for _, memberId := range rb.AtMembers {
+			content += fmt.Sprintf("<at id=%s></at>", memberId)
+		}
+		cardMsg.AppendColumnSetElement("成 员", content)
+	}
+
 	return cardMsg
 }
 
