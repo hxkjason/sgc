@@ -10,6 +10,7 @@ const (
 	MsgTypeWarning = 0
 	MsgTypeSuccess = 1
 	MsgTypeDanger  = 2
+	MsgTypeNotice  = 3
 )
 
 var (

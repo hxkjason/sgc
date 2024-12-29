@@ -29,6 +29,9 @@ func GenCardMsgJson(rb CardMsgAttr) (cardMsg CardMsg) {
 	case MsgTypeDanger:
 		cardMsg.Header.Template = "red"
 		cardMsg.Header.UdIcon.ToKen = "sheet-iconsets-cross_filled"
+	case MsgTypeNotice:
+		cardMsg.Header.Template = "purple"
+		cardMsg.Header.UdIcon.ToKen = "sheet-iconsets-cross_filled"
 	default:
 		cardMsg.Header.Template = "carmine"
 		cardMsg.Header.UdIcon.ToKen = "meeting-ai_filled"
