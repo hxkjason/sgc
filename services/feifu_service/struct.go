@@ -33,7 +33,7 @@ type (
 
 	// CardMsgAttr 卡片消息属性
 	CardMsgAttr struct {
-		MsgType       int           // 消息类型 0:warning 1:success 2:fail
+		MsgType       int           // 消息类型 0:warning 1:success 2:fail 3:notice
 		Title         string        // 标题
 		SubTitle      string        // 副标题
 		AppName       string        // 应用名称
@@ -43,6 +43,7 @@ type (
 		Trace         string        // 跟踪
 		Desc          string        // 描述
 		MessageId     string        // 消息标识
+		AtMembers     []string      // @用户列表
 		Items         []CardMsgItem // 扩展字段
 		WebhookUrl    string
 		WebhookSecret string
