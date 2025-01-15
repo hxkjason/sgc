@@ -58,6 +58,9 @@ func RequestV1(rb RequestAttrs) (*HttpResponse, error) {
 		}
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), client.Timeout*2)
+	defer cancel()
+
 	retryTimes := 1
 
 	for {
@@ -66,9 +69,9 @@ func RequestV1(rb RequestAttrs) (*HttpResponse, error) {
 
 		switch rb.HttpMethod {
 		case http.MethodGet:
-			request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, nil)
+			request, err = http.NewRequestWithContext(ctx, rb.HttpMethod, rb.RequestUrl, nil)
 		case http.MethodPost, http.MethodPut, http.MethodDelete:
-			request, err = http.NewRequest(rb.HttpMethod, rb.RequestUrl, bytes.NewBuffer(rb.RequestBody))
+			request, err = http.NewRequestWithContext(ctx, rb.HttpMethod, rb.RequestUrl, bytes.NewBuffer(rb.RequestBody))
 		default:
 			return &res, errors.New("当前请求方法[" + rb.HttpMethod + "]暂不支持")
 		}
