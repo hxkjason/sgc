@@ -49,6 +49,13 @@ type (
 		RoutingKey      []string
 		BindingExchange string
 	}
+
+	ChannelExchangeAndQueues struct {
+		Channel      *amqp.Channel
+		ExchangeName string
+		ExchangeType string
+		BindQueues   []string
+	}
 )
 
 func InitMQPublishConn(connName, connUrl string, i int) {
@@ -370,6 +377,37 @@ func DeclareExchange(ch *amqp.Channel, exchangeName, kind string) error {
 
 func DealMQMessage(messageContent []byte, messageId string) {
 	fmt.Println("deal msg:", messageId, string(messageContent))
+}
+
+// DeclareExchangeAndBindQueues 声明交换机、绑定队列
+func DeclareExchangeAndBindQueues(rb ChannelExchangeAndQueues) (err error) {
+	if err = rb.Channel.ExchangeDeclare(
+		rb.ExchangeName, // 交换机名称
+		rb.ExchangeType, //交换机类型
+		true,            //是否持久化
+		false,           //是否自动删除
+		false,           // 是否内部使用
+		false,           // 是否等待确认
+		nil,             // 其他属性
+	); err != nil {
+		return fmt.Errorf("交换机[%s]以及类型[%s]声明出错:[%s]", rb.ExchangeName, rb.ExchangeType, err.Error())
+	}
+
+	// 绑定队列到交换机
+	if len(rb.BindQueues) > 0 {
+		for _, queueName := range rb.BindQueues {
+			if err = rb.Channel.QueueBind(
+				queueName,       // 队列名称
+				"",              // 路由键
+				rb.ExchangeName, // 交换机名称
+				false,           // 是否需要等待
+				nil,             // 其他属性
+			); err != nil {
+				return fmt.Errorf("将队列[%s]绑定到交换机[%s]失败:[%s]", queueName, rb.ExchangeName, err.Error())
+			}
+		}
+	}
+	return nil
 }
 
 func (m Message) IsNotifySuccess() bool {
