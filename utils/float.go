@@ -1,8 +1,14 @@
 package utils
 
 import (
+	"math"
 	"strconv"
 )
+
+// DecimalRoundOffFour 四舍五入 保留几位小数
+func DecimalRoundOffFour(num float64, precision float64) float64 {
+	return math.Round(num*math.Pow(10, precision)) / math.Pow(10, precision)
+}
 
 // DecimalFloat 保留几位小数
 func DecimalFloat(value float64, precision int) float64 {
