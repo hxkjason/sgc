@@ -60,3 +60,17 @@ func DebugStruct(name string, structContent interface{}) {
 	fmt.Println(BytesToStr(jsonBytes))
 	fmt.Println("=================================== end")
 }
+
+func PrintMarshalIndent(structContent interface{}, name ...interface{}) {
+	fmt.Println("================================== start")
+	for _, n := range name {
+		fmt.Println(n)
+	}
+	jsonBytes, err := json.MarshalIndent(structContent, "", " ")
+	if err != nil {
+		fmt.Println("hasErr:", err.Error())
+	} else {
+		fmt.Println(BytesToStr(jsonBytes))
+	}
+	fmt.Println("=================================== end")
+}
