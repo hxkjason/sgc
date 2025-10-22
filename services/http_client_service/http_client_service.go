@@ -28,6 +28,7 @@ type (
 		NotUseHttp2 bool
 		Debug       bool
 		SaveLog     int8
+		Type        int8
 	}
 
 	HttpResponse struct {
