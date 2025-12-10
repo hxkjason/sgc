@@ -116,6 +116,23 @@ func FirstArrOnlyHas(arr1, arr2 []uint) []uint {
 	return arr1OnlyHasItems
 }
 
+// 第一个数组元素全在第二个数组范围内
+
+func FirstArrAllInSecondArr(arr1, arr2 []uint) bool {
+	// 数组2 => map
+	var arr2Map = make(map[uint]struct{}, len(arr2))
+	for _, u := range arr2 {
+		arr2Map[u] = struct{}{}
+	}
+
+	for _, item := range arr1 {
+		if _, ok := arr2Map[item]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
 // RemoveDuplicationString 去除重复元素 string
 func RemoveDuplicationString(arr []string) []string {
 	set := make(map[string]struct{}, len(arr))
