@@ -28,12 +28,13 @@ type (
 	}
 
 	CommonAttr struct {
-		FirstRowOpts          excelize.RowOpts
-		ContentRowOpts        excelize.RowOpts
-		FirstRowStyleId       int
-		HorizontalLeftStyleId int
-		QtyRightStyleId       int
-		AmtRightStyleId       int
+		FirstRowOpts            excelize.RowOpts
+		ContentRowOpts          excelize.RowOpts
+		FirstRowStyleId         int
+		HorizontalLeftStyleId   int
+		HorizontalCenterStyleId int
+		QtyRightStyleId         int
+		AmtRightStyleId         int
 	}
 )
 
