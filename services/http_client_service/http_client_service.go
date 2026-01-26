@@ -13,6 +13,10 @@ import (
 	"time"
 )
 
+const (
+	ActionIdNotNeedUnmarshalResult = 1 // 不需要解析响应到Result
+)
+
 type (
 	RequestAttrs struct {
 		RequestUrl  string
@@ -29,6 +33,7 @@ type (
 		Debug       bool
 		SaveLog     int8
 		Type        int8
+		ActionId    int8 `json:"ActionId,omitempty"`
 	}
 
 	HttpResponse struct {
@@ -127,8 +132,10 @@ func RequestV1(rb RequestAttrs) (*HttpResponse, error) {
 		}
 		res.ResBodyBytes = resBody
 
-		if err = json.Unmarshal(resBody, &rb.Result); err != nil {
-			return &res, errors.New("解码响应出错:" + err.Error() + ",originResBody:" + string(resBody))
+		if rb.ActionId != ActionIdNotNeedUnmarshalResult {
+			if err = json.Unmarshal(resBody, &rb.Result); err != nil {
+				return &res, errors.New("解码响应出错:" + err.Error() + ",originResBody:" + string(resBody))
+			}
 		}
 	}
 
